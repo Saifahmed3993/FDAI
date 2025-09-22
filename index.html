@@ -47,7 +47,7 @@
         }
 
         .navbar-brand img {
-            height: 50px;
+            height: 72px; /* slightly larger without affecting header layout */
             filter: brightness(0) invert(1); /* جعل الشعار أبيض */
         }
 
@@ -397,7 +397,9 @@
             .navbar-brand h1 {
                 font-size: 1rem;
             }
-            
+            .navbar-brand img {
+                height: 48px; /* cap logo on small screens */
+            }
             .hero {
                 padding: 80px 0;
             }
@@ -435,7 +437,7 @@
         <div class="container">
             <a class="navbar-brand" href="#">
                 <img src="123.png" alt="FDAI Logo">
-                <h1>الشمول المالي والرقمي <br> والذكاء الاصطناعي</h1>
+                <h1>وحده الشمول المالي<br>والرقمي والذكاء الاصطناعي</h1>
             </a>
             
             <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebar">
@@ -523,7 +525,7 @@
                         <p>تمكين الشباب للمستقبل الرقمي ضمن رؤية مصر 2030</p>
                         <div class="mt-4">
                             <a href="#about" class="btn btn-outline-light me-2">تعرف على الوحدة</a>
-                            <a href="#summit" class="btn btn-primary">قمة الشمول المالي 2025</a>
+                            <a href="#summit" class="btn btn-primary">قمة الشمول المالي والرقمي 2025</a>
                         </div>
                     </div>
                 </div>
@@ -868,4 +870,3 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
-
