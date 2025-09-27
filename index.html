@@ -129,6 +129,28 @@
             opacity: 0.9;
         }
 
+        /* تحسين المسافة بين الأزرار على الهواتف */
+        .hero-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        @media (max-width: 576px) {
+            .hero-buttons {
+                flex-direction: column;
+                align-items: center;
+                gap: 20px; /* زيادة المسافة بين الأزرار على الهواتف الصغيرة */
+            }
+            
+            .hero-buttons .btn {
+                width: 100%;
+                max-width: 280px;
+                margin: 0 auto;
+            }
+        }
+
         .btn {
             padding: 12px 28px;
             border-radius: 8px;
@@ -485,25 +507,25 @@
         <div class="offcanvas-body">
             <ul class="navbar-nav sidebar-nav">
                 <li class="nav-item">
-                    <a class="nav-link active" href="#home">الرئيسية</a>
+                    <a class="nav-link active" href="#home" data-bs-dismiss="offcanvas">الرئيسية</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#about">عن الوحدة</a>
+                    <a class="nav-link" href="#about" data-bs-dismiss="offcanvas">عن الوحدة</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#committees">اللجان</a>
+                    <a class="nav-link" href="#committees" data-bs-dismiss="offcanvas">اللجان</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#summit">قمة 2025</a>
+                    <a class="nav-link" href="#summit" data-bs-dismiss="offcanvas">قمة 2025</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#activities">أنشطتنا</a>
+                    <a class="nav-link" href="#activities" data-bs-dismiss="offcanvas">أنشطتنا</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#partners">الشركاء</a>
+                    <a class="nav-link" href="#partners" data-bs-dismiss="offcanvas">الشركاء</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#contact">اتصل بنا</a>
+                    <a class="nav-link" href="#contact" data-bs-dismiss="offcanvas">اتصل بنا</a>
                 </li>
                 <li class="nav-item mt-3">
                     <a href="https://forms.gle/9j184CU5usD27xxX9" target="_blank" rel="noopener noreferrer" class="btn btn-volunteer w-100">
@@ -523,8 +545,8 @@
                     <div class="col-lg-8">
                         <h2>وحدة الشمول المالي والرقمي والذكاء الاصطناعي</h2>
                         <p>تمكين الشباب للمستقبل الرقمي ضمن رؤية مصر 2030</p>
-                        <div class="mt-4">
-                            <a href="#about" class="btn btn-outline-light me-2">تعرف على الوحدة</a>
+                        <div class="mt-4 hero-buttons">
+                            <a href="#about" class="btn btn-outline-light">تعرف على الوحدة</a>
                             <a href="#summit" class="btn btn-primary">قمة الشمول المالي والرقمي 2025</a>
                         </div>
                     </div>
@@ -874,7 +896,47 @@
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- JavaScript: close sidebar and smooth-scroll to target on sidebar link click -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebarEl = document.getElementById('sidebar');
+            if (!sidebarEl) return;
+
+            // الحصول على/إنشاء إنستانس الـ Offcanvas من Bootstrap
+            const offcanvasInstance = bootstrap.Offcanvas.getOrCreateInstance(sidebarEl);
+
+            // جميع روابط الشريط الجانبي
+            const sidebarLinks = document.querySelectorAll('.sidebar-nav .nav-link');
+
+            sidebarLinks.forEach(link => {
+                link.addEventListener('click', function(event) {
+                    const href = link.getAttribute('href');
+
+                    // لو الرابط ليس داخل الصفحة (ليس hash) نغلق القائمة ونسمح بالسلوك الطبيعي
+                    if (!href || !href.startsWith('#')) {
+                        if (offcanvasInstance) offcanvasInstance.hide();
+                        return;
+                    }
+
+                    event.preventDefault();
+
+                    // عند إغلاق الـ offcanvas ننفذ التمرير الناعم إلى العنصر الهدف
+                    const onHidden = function() {
+                        sidebarEl.removeEventListener('hidden.bs.offcanvas', onHidden);
+                        const target = document.querySelector(href);
+                        if (target) {
+                            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                            // تحديث الـ hash في شريط العنوان بدون قفز مفاجئ
+                            history.pushState(null, '', href);
+                        }
+                    };
+
+                    sidebarEl.addEventListener('hidden.bs.offcanvas', onHidden, { once: true });
+                    offcanvasInstance.hide();
+                });
+            });
+        });
+    </script>
 </body>
 </html>
-
-
