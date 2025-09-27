@@ -897,45 +897,84 @@
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
-    <!-- JavaScript: close sidebar and smooth-scroll to target on sidebar link click -->
+    <!-- JavaScript: manage active nav links, smooth-scroll, and sidebar behavior -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const sidebarEl = document.getElementById('sidebar');
-            if (!sidebarEl) return;
+            const offcanvasInstance = sidebarEl ? bootstrap.Offcanvas.getOrCreateInstance(sidebarEl) : null;
 
-            // الحصول على/إنشاء إنستانس الـ Offcanvas من Bootstrap
-            const offcanvasInstance = bootstrap.Offcanvas.getOrCreateInstance(sidebarEl);
-
-            // جميع روابط الشريط الجانبي
+            const navbarLinks = document.querySelectorAll('.navbar .nav-link');
             const sidebarLinks = document.querySelectorAll('.sidebar-nav .nav-link');
+            const allLinks = document.querySelectorAll('.navbar .nav-link, .sidebar-nav .nav-link');
 
-            sidebarLinks.forEach(link => {
+            function clearActive() {
+                allLinks.forEach(l => l.classList.remove('active'));
+            }
+
+            function setActiveByHref(href) {
+                allLinks.forEach(l => {
+                    if (l.getAttribute('href') === href) l.classList.add('active');
+                });
+            }
+
+            // Click handling for both navbar and sidebar links
+            allLinks.forEach(link => {
                 link.addEventListener('click', function(event) {
                     const href = link.getAttribute('href');
+                    if (!href) return;
 
-                    // لو الرابط ليس داخل الصفحة (ليس hash) نغلق القائمة ونسمح بالسلوك الطبيعي
-                    if (!href || !href.startsWith('#')) {
+                    // External links: close sidebar (if open) and mark active on the clicked link
+                    if (!href.startsWith('#')) {
                         if (offcanvasInstance) offcanvasInstance.hide();
+                        clearActive();
+                        link.classList.add('active');
                         return;
                     }
 
+                    // Internal anchor: smooth scroll and set active
                     event.preventDefault();
 
-                    // عند إغلاق الـ offcanvas ننفذ التمرير الناعم إلى العنصر الهدف
-                    const onHidden = function() {
-                        sidebarEl.removeEventListener('hidden.bs.offcanvas', onHidden);
-                        const target = document.querySelector(href);
-                        if (target) {
-                            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                            // تحديث الـ hash في شريط العنوان بدون قفز مفاجئ
+                    // If the link is in the sidebar, wait for the offcanvas to hide before scrolling
+                    if (link.closest('.sidebar-nav') && offcanvasInstance) {
+                        const onHidden = function() {
+                            sidebarEl.removeEventListener('hidden.bs.offcanvas', onHidden);
+                            const target = document.querySelector(href);
+                            if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
                             history.pushState(null, '', href);
-                        }
-                    };
+                        };
+                        sidebarEl.addEventListener('hidden.bs.offcanvas', onHidden, { once: true });
+                        offcanvasInstance.hide();
+                    } else {
+                        const target = document.querySelector(href);
+                        if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        history.pushState(null, '', href);
+                    }
 
-                    sidebarEl.addEventListener('hidden.bs.offcanvas', onHidden, { once: true });
-                    offcanvasInstance.hide();
+                    clearActive();
+                    setActiveByHref(href);
                 });
             });
+
+            // Highlight nav link based on visible section using IntersectionObserver
+            const sections = document.querySelectorAll('main section[id]');
+            if (sections.length) {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            const id = '#' + entry.target.id;
+                            clearActive();
+                            setActiveByHref(id);
+                        }
+                    });
+                }, { threshold: 0.55 }); // consider section active when 55% visible
+
+                sections.forEach(s => observer.observe(s));
+            }
+
+            // On initial load, set active link from hash or default to #home
+            const initialHash = window.location.hash || '#home';
+            clearActive();
+            setActiveByHref(initialHash);
         });
     </script>
 </body>
